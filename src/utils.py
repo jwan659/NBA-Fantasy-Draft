@@ -94,7 +94,9 @@ def cross_val(reg_base, X, y, n_folds=5, isLightGBM=False, params=None, verbose=
                 d_valid = lgb.Dataset(X_valid, label=y_valid)
                 watchlist = [d_valid]
                 reg = lgb.train(params, d_train, watchlist, verbose_eval=1)
-
+        elif params != None:
+            reg = reg_base(params, d_train, watchlist, verbose_eval=1)
+            reg.fit(X_train, y_train)
         else:
             reg = reg_base
             reg.fit(X_train, y_train)

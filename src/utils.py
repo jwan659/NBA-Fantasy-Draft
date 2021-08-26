@@ -145,3 +145,41 @@ def get_punt_columns(punt=None):
     columns = ['FG%','FT%','3P','PTS','TRB','AST','STL','BLK','TOV']
     stats = [x for x in columns if x not in punt]
     return stats
+
+def weigh_rows(row, weighting, old_row):
+    if weighting == 'linear':
+        weights = [i for i in range(1,4)]
+    elif weighting == 'quad':
+        weights = [i**2 for i in range(1,4)]
+    elif weighting == 'sqrt':
+        weights = [i**(1/2) for i in range(1,4)]
+    elif weighting == 'base':
+        weights = [1, 1, 1]
+    new_row = pd.DataFrame(columns=row.columns)
+    new_row.drop(['PLAYER','POS','AGE','TEAM','SEASON','VALUE'],axis=1,inplace=True)
+    for column in new_row.columns:
+        values = row[column].tolist()
+        n = len(weights)
+        weighted_sum = [weights[i]*values[i] for i in range(n)]
+        weighted_mean = sum(weighted_sum)/sum(weights)
+        old_row.loc[:,column] = weighted_mean
+    return old_row
+
+def weigh_data(weighting, season, merged, include_curr=False):
+    curr = merged.loc[merged['SEASON']==season].reset_index()
+    weighted = pd.DataFrame()
+    for i in tqdm(range(curr.shape[0])): #iterate through players
+        name = curr.loc[i,'PLAYER']
+        df_name = merged.loc[merged['PLAYER']==name].reset_index(drop=True)
+        if include_curr == False:
+            new = df_name.loc[df_name['SEASON'] < season]
+        else:
+            new = df_name.loc[df_name['SEASON'] <= season]
+        if len(new.index) >=3:
+            new.sort_values(by=['SEASON'], inplace=True)
+            row = new.iloc[-3:]
+            old_row = df_name.loc[df_name['SEASON'] == season]
+            new_row = weigh_rows(row, weighting, old_row)
+            weighted = weighted.append(new_row)
+    weighted = weighted.fillna(0)
+    return weighted

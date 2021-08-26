@@ -2,6 +2,8 @@ import os
 
 DATA_DIR = os.path.join(os.getcwd().replace('/src', ''), 'data')
 
+PUNT_TYPES = [[],['FG%'],['FT%'],['PTS'],['TRB'],['AST'],['STL'],['BLK'],['FG%','TRB'],['BLK','FG%'],['AST','STL'],['PTS','FT%']]
+
 # Scraping
 SECONDS_SLEEP = 1
 

@@ -140,3 +140,8 @@ def summarize_errors(errors, verbose=0):
     print('RMSE | Mean: {}, SD: {}\n'.format(str(round(np.mean(errors['RMSE']['valid']), 5)),
                                              str(round(np.std(errors['RMSE']['valid']), 5))))
     return None
+
+def get_punt_columns(punt=None):
+    columns = ['FG%','FT%','3P','PTS','TRB','AST','STL','BLK','TOV']
+    stats = [x for x in columns if x not in punt]
+    return stats

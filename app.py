@@ -1,43 +1,20 @@
 import os
 import tkinter as tk
-from tkinter import *
 from tkinter import ttk
 import pandas as pd
 
-# read csv files
-directory = './data/PRED/'
-dfs = {}
-for filename in os.listdir(directory):
-    dfs[filename] = pd.read_csv(os.path.join(directory,filename))
-
-players_drafted = []
-other_players_drafted = []
-
-base_df = pd.read_csv('data/PRED/Base.csv')
-print(base_df.head())
-
-window = tk.Tk()
-label = tk.Label(
-    text="2021-2022 NBA Fantasy Drafter",
-    foreground='white',
-    background='black'
-)
-
-
-frame = tk.Frame(window)
-
-# packs
-label.grid(row=0, column=0)
 
 def get_current_score():
     punts = []
     punt_scores = {}
-    for key, df in dfs.items():
-        # calculate score for each punt type based on current players
+
+    # calculate score for each punt type based on current players
+    for key, df in dfs.items(): 
         score = df[df['PLAYER'].isin(players_drafted)]['PRED'].sum()
         punt_scores[key] = score
     print(punt_scores)
     punts = sorted(punt_scores, key=punt_scores.get, reverse=True)[:3]
+    
     return punts
 
 def best_guard(df):
@@ -72,10 +49,10 @@ def refresh_list():
     
     if len(players_drafted) == 0:
         best_punts_files = ['Base.csv']
-
     else:
         # get best punts
         best_punts_files = get_current_score()
+
     list = []
     # find best players available
     for file in best_punts_files:
@@ -93,18 +70,6 @@ def refresh_list():
     # return matrix of best players list of lists
     return new_df
 
-# add player to list of
-def on_change(e):
-    entry = (e.widget.get())
-    if add_player(entry, 1) == 1:
-        l1.insert(END, entry)
-
-# add player to others drafted list
-def in_change(e):
-    entry = (e.widget.get())
-    if add_player(entry, 2) == 1:
-        l2.insert(END, entry)
-
 # add player if they are available
 def add_player(entry, button):
     # check if player valid
@@ -113,11 +78,11 @@ def add_player(entry, button):
         if button == 1:
             players_drafted.append(entry)
             print('Drafted' + entry) # TODO convert this to message 
-            l1.insert(END, entry)
+            l1.insert(tk.END, entry)
         else:
             other_players_drafted.append(entry)
             print('Drafted' + entry) # TODO convert this to message
-            l2.insert(END, entry)
+            l2.insert(tk.END, entry)
 
         list.remove(entry)
         Update(list)
@@ -129,7 +94,6 @@ def add_player(entry, button):
         print(entry + 'has already been drafted.') # TODO convert this to message
     else:
         print(entry + 'could not be found.') # TODO convert this to message
-
     return
 
 # check to see if player is in valid list of players, my list of drafted of players, and players drafted by other opponents
@@ -155,7 +119,6 @@ def refresh_matrix():
     # Add a Treeview widget
     tree = ttk.Treeview(window, column=('Punt Type',"Guard", "LName", "Roll No"), show='headings', height=5)
 
-    
     tree.column("# 1", anchor=CENTER)
     tree.heading("# 1", text="Punt Type")
     tree.column("# 2", anchor=CENTER)
@@ -176,15 +139,6 @@ def refresh_matrix():
 
     tree.grid(row=8, column=0)
 
-refresh_matrix()
-l1 = Listbox()
-for item in players_drafted:
-    l1.insert(END, item)
-
-l1.grid(row=1, column=0)
-l2 = Listbox()
-l2.grid(row=1, column=1)
-
 def Scankey(event):
 	val = event.widget.get()
 	if val == '':
@@ -202,6 +156,45 @@ def Update(data):
 	for item in data:
 		listbox.insert('end', item)
 
+def drafted_by_me():
+    player = listbox.get(listbox.curselection())
+    add_player(player, 1)
+
+def drafted_by_other():
+    player = listbox.get(listbox.curselection())
+    add_player(player, 2)
+# read csv files
+
+directory = './data/PRED/'
+dfs = {}
+for filename in os.listdir(directory):
+    dfs[filename] = pd.read_csv(os.path.join(directory,filename))
+
+players_drafted = []
+other_players_drafted = []
+base_df = pd.read_csv('data/PRED/Base.csv')
+
+window = tk.Tk()
+label = tk.Label(
+    text="2021-2022 NBA Fantasy Drafter",
+    foreground='white',
+    background='black'
+)
+
+frame = tk.Frame(window)
+
+# packs
+label.grid(row=0, column=0) #done
+
+refresh_matrix()
+l1 = Listbox()
+for item in players_drafted:
+    l1.insert(END, item)
+
+l1.grid(row=1, column=0)
+l2 = Listbox()
+l2.grid(row=1, column=1)
+
 list = base_df['PLAYER'].tolist()
 
 entry = Entry(window)
@@ -210,15 +203,7 @@ entry.bind('<KeyRelease>', Scankey)
 
 listbox = Listbox(window)
 listbox.grid(row=7, column=0)
-Update(list)
-
-def drafted_by_me():
-    player = listbox.get(listbox.curselection())
-    add_player(player, 1)
-
-def drafted_by_other():
-    player = listbox.get(listbox.curselection())
-    add_player(player, 2)
+(list)
 
 Button(window, text='Drafted By Me', command=drafted_by_me).grid(row=10, column=0)
 Button(window, text='Drafted By Someone Else', command=drafted_by_other).grid(row=11, column=0)

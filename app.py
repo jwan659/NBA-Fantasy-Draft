@@ -2,7 +2,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import pandas as pd
-
+from tkinter import *
 
 def get_current_score():
     punts = []
@@ -185,8 +185,8 @@ frame = tk.Frame(window)
 
 # packs
 label.grid(row=0, column=0) #done
-
 refresh_matrix()
+
 l1 = Listbox()
 for item in players_drafted:
     l1.insert(END, item)
@@ -198,15 +198,15 @@ l2.grid(row=1, column=1)
 list = base_df['PLAYER'].tolist()
 
 entry = Entry(window)
-entry.grid(row=6, column=0)
+entry.grid(row=6, column=1)
 entry.bind('<KeyRelease>', Scankey)
 
 listbox = Listbox(window)
 listbox.grid(row=7, column=0)
-(list)
+
+Update(list)
 
 Button(window, text='Drafted By Me', command=drafted_by_me).grid(row=10, column=0)
 Button(window, text='Drafted By Someone Else', command=drafted_by_other).grid(row=11, column=0)
-show = Label(window)
-
+print(type(window))
 window.mainloop()

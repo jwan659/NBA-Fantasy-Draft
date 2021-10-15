@@ -12,7 +12,7 @@ def get_current_score():
     for key, df in dfs.items(): 
         score = df[df['PLAYER'].isin(players_drafted)]['PRED'].sum()
         punt_scores[key] = score
-    print(punt_scores)
+
     punts = sorted(punt_scores, key=punt_scores.get, reverse=True)[:3]
     
     return punts
